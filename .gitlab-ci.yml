@@ -1,0 +1,31 @@
+stages:
+  - build
+  - push
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: "0.0.1-snapshot"
+
+before_script:
+  - docker info
+
+build:
+  stage: build
+  image: docker:20.10.7
+  services:
+    - docker:20.10.7-dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+  only:
+    - master
+
+push:
+  stage: push
+  image: docker:20.10.7
+  services:
+    - docker:20.10.7-dind
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+  only:
+    - master
