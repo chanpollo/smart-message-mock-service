@@ -1,11 +1,12 @@
-version: '3.8'
+version: '3'
 
 services:
   app:
     build: .
+    container_name: app-mock
     ports:
       - '13000:3000'
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm start
+    image: app-mock:0.0.1-snapshot
