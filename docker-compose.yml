@@ -1,12 +1,9 @@
 version: '3'
 
 services:
-  app:
+  smart-message-mock-service:
     build: .
-    container_name: app-mock
+    container_name: smart-message-mock-service
     ports:
       - '13000:3000'
-    volumes:
-      - .:/app
-      - /app/node_modules
-    image: app-mock:0.0.1-snapshot
+    image: smart-message-mock-service:0.0.1-snapshot
