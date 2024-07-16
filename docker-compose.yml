@@ -7,3 +7,9 @@ services:
     ports:
       - '13000:3000'
     image: smart-message-mock-service:0.0.1-snapshot
+    networks:
+      - smart-msg
+
+networks:
+  smart-msg:
+    external: true
