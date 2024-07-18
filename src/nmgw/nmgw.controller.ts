@@ -39,6 +39,15 @@ export const checkCharging = (req: Request, res: Response) => {
   return res.json(ret)
 }
 
+export const newPartnerProfile = (req: Request, res: Response) => {
+  const response = {
+    resultCode: "20000",
+    resultStatus: "Success",
+    developerMessage: "Success"
+  }
+  return res.status(201).json(response)
+}
+
 function generateSmIds(n: number): string[] {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   const length = 15
