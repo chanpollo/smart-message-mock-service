@@ -6,7 +6,7 @@ export const sendSmsController = (req: Request, res: Response) => {
     resultCode: "20000",
     resultStatus: "Success",
     developerMessage: "Success",
-    resultData: { 
+    resultData: {
       smIdList: []
     }
   }
