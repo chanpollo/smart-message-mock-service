@@ -26,6 +26,19 @@ export const sendSmsController = (req: Request, res: Response) => {
   return res.json(ret)
 }
 
+export const checkCharging = (req: Request, res: Response) => {
+  const ret = {
+    resultCode: "20000",
+    resultStatus: "Success",
+    developerMessage: "Success",
+    resultData: { 
+      chargeNumber: '',
+      status: 'Active'
+    }
+  }
+  return ret
+}
+
 function generateSmIds(n: number): string[] {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   const length = 15

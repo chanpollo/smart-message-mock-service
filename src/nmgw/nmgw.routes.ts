@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { sendSmsController } from './nmgw.controller'
+import { checkCharging, sendSmsController } from './nmgw.controller'
 export const nmgwRouter = Router();
 
 nmgwRouter.post('/send-sms', sendSmsController)
+nmgwRouter.post('/check-charging', checkCharging)
