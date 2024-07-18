@@ -1,7 +1,69 @@
 import { Request, Response } from 'express';
 import { TBody, TResponse } from './nmgw.interface';
+import { logger } from './tps.logger';
+
+let requestCount = 0;
+let startTime = Date.now();
+let totalRequests = 0;
+let maxTPS = 0;
+let minTPS = Infinity;
+let tpsValues: number[] = [];
+let logInterval: NodeJS.Timeout | null = null;
+let stopLoggingTimeout: NodeJS.Timeout | null = null;
+
+const calculateTPS = () => {
+  const currentTime = Date.now();
+  const elapsedTimeInSeconds = (currentTime - startTime) / 1000;
+  const tps = Math.floor(requestCount / elapsedTimeInSeconds)
+
+  if (tps > 0) {
+    tpsValues.push(tps);
+    totalRequests += requestCount;
+    maxTPS = Math.max(maxTPS, tps);
+    minTPS = Math.min(minTPS, tps);
+  }
+
+  const nonZeroTPSValues = tpsValues.filter(value => value > 0);
+  const avgTPS = nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length;
+  const timestamp = new Date().toISOString();
+  const logMessage = `${timestamp} - TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
+
+  logger.info(logMessage);
+
+  requestCount = 0;
+  startTime = currentTime;
+};
+
+const startLogging = () => {
+  if (!logInterval) {
+    logInterval = setInterval(calculateTPS, 1000);
+    console.log("Logging started.");
+  }
+};
+
+const stopLogging = () => {
+  if (logInterval) {
+    clearInterval(logInterval);
+    logInterval = null;
+    console.log("Logging stopped due to inactivity.");
+  }
+};
+
+const resetStopLoggingTimeout = () => {
+  if (stopLoggingTimeout) {
+    clearTimeout(stopLoggingTimeout);
+  }
+  stopLoggingTimeout = setTimeout(stopLogging, 10000);
+};
 
 export const sendSmsController = (req: Request, res: Response) => {
+  requestCount++;
+
+  if (!logInterval) {
+    startLogging();
+  }
+  resetStopLoggingTimeout();
+
   const ret: TResponse = {
     resultCode: "20000",
     resultStatus: "Success",

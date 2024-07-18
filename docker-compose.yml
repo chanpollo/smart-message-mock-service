@@ -9,6 +9,7 @@ services:
     image: smart-message-mock-service:0.0.1-snapshot
     networks:
       - smart-msg
+    
 
 networks:
   smart-msg:

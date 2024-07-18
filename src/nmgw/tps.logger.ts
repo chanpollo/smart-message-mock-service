@@ -8,7 +8,7 @@ const logFormat = printf(({ timestamp, message }) => {
   return `${timestamp} - ${message}`;
 });
 
-const getLogFileName = () => join(__dirname, 'tps_log.log');
+const getLogFileName = () => join('logs', 'tps', 'tps_log.log');
 const getRotatedFileName = () => {
   const date = new Date();
   const formattedDate = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getHours().toString().padStart(2, '0')}00`;
@@ -28,7 +28,8 @@ const logger = createLogger({
     logFormat
   ),
   transports: [
-    new transports.File({ filename: getLogFileName() })
+    new transports.File({ filename: getLogFileName() }),
+    new transports.Console()
   ]
 });
 
