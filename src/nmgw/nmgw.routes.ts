@@ -3,4 +3,4 @@ import { checkCharging, sendSmsController } from './nmgw.controller'
 export const nmgwRouter = Router();
 
 nmgwRouter.post('/send-sms', sendSmsController)
-nmgwRouter.post('/check-charging', checkCharging)
+nmgwRouter.post('/charging-info', checkCharging)
