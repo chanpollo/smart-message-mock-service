@@ -36,7 +36,7 @@ export const checkCharging = (req: Request, res: Response) => {
       status: 'Active'
     }
   }
-  return ret
+  return res.json(ret)
 }
 
 function generateSmIds(n: number): string[] {
