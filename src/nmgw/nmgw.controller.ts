@@ -25,8 +25,7 @@ const calculateTPS = () => {
 
   const nonZeroTPSValues = tpsValues.filter(value => value > 0);
   const avgTPS = nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length;
-  const timestamp = new Date().toISOString();
-  const logMessage = `${timestamp} - TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
+  const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
 
   logger.info(logMessage);
 
