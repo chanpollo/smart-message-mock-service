@@ -3,7 +3,7 @@ import { TBody, TResponse } from './nmgw.interface';
 import { logger } from './tps.logger';
 
 let startTime = Date.now();
-let requestCount = 1;
+let requestCount = 0;
 let totalRequests = 0;
 let maxTPS = 0;
 let minTPS = Infinity;
@@ -14,7 +14,7 @@ let stopLoggingTimeout: NodeJS.Timeout | null = null;
 const calculateTPS = () => {
   const currentTime = Date.now();
   const elapsedTimeInSeconds = (currentTime - startTime) / 1000;
-  const tps = Math.floor(requestCount / elapsedTimeInSeconds)
+  const tps = Math.floor(requestCount / elapsedTimeInSeconds);
 
   if (tps > 0) {
     tpsValues.push(tps);
@@ -24,13 +24,16 @@ const calculateTPS = () => {
   }
 
   const nonZeroTPSValues = tpsValues.filter(value => value > 0);
-  const avgTPS = nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length;
+  const avgTPS = nonZeroTPSValues.length > 0 
+    ? nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length
+    : 0;
+
   const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
 
   logger.info(logMessage);
 
-  requestCount = 0;
-  startTime = currentTime;
+  requestCount = 0;  // Reset request count for the next interval
+  startTime = currentTime;  // Reset start time for the next interval
 };
 
 const startLogging = () => {
@@ -46,7 +49,7 @@ const stopLogging = () => {
     logInterval = null;
     console.log("Logging stopped due to inactivity and reset counting.");
     // Reset counts
-    requestCount = 1;
+    requestCount = 0;
     totalRequests = 0;
     maxTPS = 0;
     minTPS = Infinity;
@@ -76,22 +79,23 @@ export const sendSmsController = (req: Request, res: Response) => {
     resultData: {
       smIdList: []
     }
-  }
-  const body = req.body as TBody
-  if (!body.content) return res.status(400).send('missing or invalid content')
+  };
+
+  const body = req.body as TBody;
+  if (!body.content) return res.status(400).send('missing or invalid content');
 
   if (body.content.includes('flag=1,')) {
-    ret.resultData.smIdList = generateSmIds(1)
+    ret.resultData.smIdList = generateSmIds(1);
   } else if (body.content.includes('flag=2,')) {
-    ret.resultData.smIdList = generateSmIds(2)
+    ret.resultData.smIdList = generateSmIds(2);
   } else if (body.content.includes('flag=3,')) {
-    ret.resultData.smIdList = generateSmIds(3)
+    ret.resultData.smIdList = generateSmIds(3);
   } else {
-    res.status(400).send('missing or invalid content must have flag or flag allow 1, 2, 3')
+    return res.status(400).send('missing or invalid content must have flag or flag allow 1, 2, 3');
   }
 
-  return res.json(ret)
-}
+  return res.json(ret);
+};
 
 export const checkCharging = (req: Request, res: Response) => {
   const ret = {
@@ -102,32 +106,32 @@ export const checkCharging = (req: Request, res: Response) => {
       chargeNumber: '',
       status: 'Active'
     }
-  }
-  return res.json(ret)
-}
+  };
+  return res.json(ret);
+};
 
 export const newPartnerProfile = (req: Request, res: Response) => {
   const response = {
     resultCode: "20000",
     resultStatus: "Success",
     developerMessage: "Success"
-  }
-  return res.status(201).json(response)
-}
+  };
+  return res.status(201).json(response);
+};
 
 function generateSmIds(n: number): string[] {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  const length = 15
-  const smIds: Set<string> = new Set()
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const length = 15;
+  const smIds: Set<string> = new Set();
 
   while (smIds.size < n) {
-    let smId = ''
+    let smId = '';
     for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length)
-      smId += characters[randomIndex]
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      smId += characters[randomIndex];
     }
-    smIds.add(smId)
+    smIds.add(smId);
   }
 
-  return Array.from(smIds)
+  return Array.from(smIds);
 }
