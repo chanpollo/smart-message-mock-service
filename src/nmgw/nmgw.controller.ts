@@ -3,6 +3,7 @@ import { TBody, TResponse } from './nmgw.interface';
 import { logger } from './tps.logger';
 
 let startTime = Date.now();
+let lastLogTime = Date.now();
 let requestCount = 0;
 let totalRequests = 0;
 let maxTPS = 0;
@@ -13,30 +14,30 @@ let stopLoggingTimeout: NodeJS.Timeout | null = null;
 
 const calculateTPS = () => {
   const currentTime = Date.now();
-  const elapsedTimeInSeconds = (currentTime - startTime) / 1000;
+  const elapsedTimeInSeconds = (currentTime - lastLogTime) / 1000;
 
   if (elapsedTimeInSeconds === 0) return;
 
   const tps = Math.floor(requestCount / elapsedTimeInSeconds);
 
-  if (tps > 0) {
+  if (requestCount > 0) {
     tpsValues.push(tps);
     totalRequests += requestCount;
     maxTPS = Math.max(maxTPS, tps);
     minTPS = Math.min(minTPS, tps);
-
-    const nonZeroTPSValues = tpsValues.filter(value => value > 0);
-    const avgTPS = nonZeroTPSValues.length > 0
-      ? nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length
-      : 0;
-
-    const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
-
-    logger.info(logMessage);
   }
 
-  requestCount = 0;
-  startTime = currentTime;
+  const nonZeroTPSValues = tpsValues.filter(value => value > 0);
+  const avgTPS = nonZeroTPSValues.length > 0
+    ? nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length
+    : 0;
+
+  const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
+
+  logger.info(logMessage);
+
+  requestCount = 0;  // Reset request count for the next interval
+  lastLogTime = currentTime;  // Reset last log time for the next interval
 };
 
 const startLogging = () => {
@@ -57,6 +58,8 @@ const stopLogging = () => {
     maxTPS = 0;
     minTPS = Infinity;
     tpsValues = [];
+    startTime = Date.now();
+    lastLogTime = Date.now();
   }
 };
 
