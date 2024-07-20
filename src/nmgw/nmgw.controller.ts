@@ -14,6 +14,9 @@ let stopLoggingTimeout: NodeJS.Timeout | null = null;
 const calculateTPS = () => {
   const currentTime = Date.now();
   const elapsedTimeInSeconds = (currentTime - startTime) / 1000;
+
+  if (elapsedTimeInSeconds === 0) return;
+
   const tps = Math.floor(requestCount / elapsedTimeInSeconds);
 
   if (tps > 0) {
@@ -21,19 +24,19 @@ const calculateTPS = () => {
     totalRequests += requestCount;
     maxTPS = Math.max(maxTPS, tps);
     minTPS = Math.min(minTPS, tps);
+
+    const nonZeroTPSValues = tpsValues.filter(value => value > 0);
+    const avgTPS = nonZeroTPSValues.length > 0
+      ? nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length
+      : 0;
+
+    const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
+
+    logger.info(logMessage);
   }
 
-  const nonZeroTPSValues = tpsValues.filter(value => value > 0);
-  const avgTPS = nonZeroTPSValues.length > 0 
-    ? nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length
-    : 0;
-
-  const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
-
-  logger.info(logMessage);
-
-  requestCount = 0;  // Reset request count for the next interval
-  startTime = currentTime;  // Reset start time for the next interval
+  requestCount = 0;
+  startTime = currentTime;
 };
 
 const startLogging = () => {
