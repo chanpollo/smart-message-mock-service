@@ -45,7 +45,8 @@ const stopLogging = () => {
     clearInterval(logInterval);
     logInterval = null;
     console.log("Logging stopped due to inactivity and reset counting.");
-    requestCount = 0;
+    // Reset counts
+    requestCount = 1;
     totalRequests = 0;
     maxTPS = 0;
     minTPS = Infinity;

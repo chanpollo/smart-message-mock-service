@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from 'winston';
-import { join } from 'path';
-import { existsSync, renameSync } from 'fs';
+import { join, resolve } from 'path';
+import { existsSync, renameSync, mkdirSync } from 'fs';
 
 const { combine, timestamp, printf } = format;
 
@@ -8,11 +8,13 @@ const logFormat = printf(({ timestamp, message }) => {
   return `Time: ${timestamp} - ${message}`;
 });
 
-const getLogFileName = () => join('logs', 'tps.log');
+const logDirectory = resolve('./logs');
+
+const getLogFileName = () => join(logDirectory, 'tps.log');
 const getRotatedFileName = () => {
   const date = new Date();
   const formattedDate = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getHours().toString().padStart(2, '0')}00`;
-  return join(getLogFileName(), `${formattedDate}_tps_log.log`);
+  return join(logDirectory, `${formattedDate}_tps_log.log`);
 };
 
 const rotateLogFile = () => {
@@ -21,6 +23,10 @@ const rotateLogFile = () => {
     renameSync(currentLogFile, getRotatedFileName());
   }
 };
+
+if (!existsSync(logDirectory)) {
+  mkdirSync(logDirectory);
+}
 
 const logger = createLogger({
   format: combine(
