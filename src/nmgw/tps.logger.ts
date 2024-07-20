@@ -5,14 +5,14 @@ import { existsSync, renameSync } from 'fs';
 const { combine, timestamp, printf } = format;
 
 const logFormat = printf(({ timestamp, message }) => {
-  return `${timestamp} - ${message}`;
+  return `Time: ${timestamp} - ${message}`;
 });
 
-const getLogFileName = () => join('logs', 'tps', 'tps_log.log');
+const getLogFileName = () => join('logs', 'tps.log');
 const getRotatedFileName = () => {
   const date = new Date();
   const formattedDate = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getHours().toString().padStart(2, '0')}00`;
-  return join(__dirname, `${formattedDate}_tps_log.log`);
+  return join(getLogFileName(), `${formattedDate}_tps_log.log`);
 };
 
 const rotateLogFile = () => {

@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { TBody, TResponse } from './nmgw.interface';
 import { logger } from './tps.logger';
 
-let requestCount = 0;
 let startTime = Date.now();
+let requestCount = 1;
 let totalRequests = 0;
 let maxTPS = 0;
 let minTPS = Infinity;
@@ -44,7 +44,12 @@ const stopLogging = () => {
   if (logInterval) {
     clearInterval(logInterval);
     logInterval = null;
-    console.log("Logging stopped due to inactivity.");
+    console.log("Logging stopped due to inactivity and reset counting.");
+    requestCount = 0;
+    totalRequests = 0;
+    maxTPS = 0;
+    minTPS = Infinity;
+    tpsValues = [];
   }
 };
 
