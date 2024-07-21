@@ -43,6 +43,7 @@ const calculateTPS = () => {
 
 const startLogging = () => {
   if (!logInterval) {
+    calculateTPS()
     logInterval = setInterval(calculateTPS, 1000);
     console.log("Logging started.");
   }
