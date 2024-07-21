@@ -7,7 +7,6 @@ let lastLogTime = Date.now();
 let requestCount = 0;
 let totalRequests = 0;
 let maxTPS = 0;
-let minTPS = Infinity;
 let tpsValues: number[] = [];
 let logInterval: NodeJS.Timeout | null = null;
 let stopLoggingTimeout: NodeJS.Timeout | null = null;
@@ -25,7 +24,6 @@ const calculateTPS = () => {
     tpsValues.push(tps);
     totalRequests += cRequest;
     maxTPS = Math.max(maxTPS, tps);
-    minTPS = Math.min(minTPS, tps);
   }
 
   const nonZeroTPSValues = tpsValues.filter(value => value > 0);
@@ -33,7 +31,7 @@ const calculateTPS = () => {
     ? nonZeroTPSValues.reduce((acc, val) => acc + val, 0) / nonZeroTPSValues.length
     : 0;
 
-  const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
+  const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
 
   logger.info(logMessage);
 
@@ -43,7 +41,6 @@ const calculateTPS = () => {
 
 const startLogging = () => {
   if (!logInterval) {
-    calculateTPS()
     logInterval = setInterval(calculateTPS, 1000);
     console.log("Logging started.");
   }
@@ -58,7 +55,6 @@ const stopLogging = () => {
     requestCount = 0;
     totalRequests = 0;
     maxTPS = 0;
-    minTPS = Infinity;
     tpsValues = [];
     startTime = Date.now();
     lastLogTime = Date.now();
