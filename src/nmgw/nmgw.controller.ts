@@ -15,14 +15,16 @@ let stopLoggingTimeout: NodeJS.Timeout | null = null;
 const calculateTPS = () => {
   const currentTime = Date.now();
   const elapsedTimeInSeconds = (currentTime - lastLogTime) / 1000;
+  const cRequest = requestCount
+  requestCount = 0;
 
   if (elapsedTimeInSeconds === 0) return;
 
-  const tps = Math.floor(requestCount / elapsedTimeInSeconds);
+  const tps = Math.floor(cRequest / elapsedTimeInSeconds);
 
-  if (requestCount > 0) {
+  if (cRequest > 0) {
     tpsValues.push(tps);
-    totalRequests += requestCount;
+    totalRequests += cRequest;
     maxTPS = Math.max(maxTPS, tps);
     minTPS = Math.min(minTPS, tps);
   }
@@ -35,9 +37,7 @@ const calculateTPS = () => {
   const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
 
   logger.info(logMessage);
-
-  requestCount = 0;  // Reset request count for the next interval
-  lastLogTime = currentTime;  // Reset last log time for the next interval
+  lastLogTime = currentTime;
 };
 
 const startLogging = () => {
@@ -67,7 +67,7 @@ const resetStopLoggingTimeout = () => {
   if (stopLoggingTimeout) {
     clearTimeout(stopLoggingTimeout);
   }
-  stopLoggingTimeout = setTimeout(stopLogging, 10000);
+  stopLoggingTimeout = setTimeout(stopLogging, 5000);
 };
 
 export const sendSmsController = (req: Request, res: Response) => {
