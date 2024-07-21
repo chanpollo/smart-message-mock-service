@@ -16,7 +16,6 @@ const calculateTPS = () => {
   const currentTime = Date.now();
   const elapsedTimeInSeconds = (currentTime - lastLogTime) / 1000;
   const cRequest = requestCount
-  requestCount = 0;
 
   if (elapsedTimeInSeconds === 0) return;
 
@@ -37,6 +36,8 @@ const calculateTPS = () => {
   const logMessage = `TPS: ${tps.toFixed(2)}, Avg TPS: ${avgTPS.toFixed(2)}, Max TPS: ${maxTPS.toFixed(2)}, Min TPS: ${minTPS === Infinity ? 0 : minTPS.toFixed(2)}, Total Msg: ${totalRequests}`;
 
   logger.info(logMessage);
+
+  requestCount = 0;
   lastLogTime = currentTime;
 };
 
