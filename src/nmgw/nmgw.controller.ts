@@ -68,7 +68,7 @@ const resetStopLoggingTimeout = () => {
   stopLoggingTimeout = setTimeout(stopLogging, 5000);
 };
 
-export const sendSmsController = (req: Request, res: Response) => {
+export const sendMsg = (req: Request, res: Response) => {
   requestCount++;
 
   if (!logInterval) {
@@ -95,21 +95,18 @@ export const sendSmsController = (req: Request, res: Response) => {
   } else if (body.content.includes('flag=3,')) {
     ret.resultData.smIdList = generateSmIds(3);
   } else {
-    return res.status(400).send('missing or invalid content must have flag or flag allow 1, 2, 3');
+    ret.resultData.smIdList = generateSmIds(1);
   }
 
   return res.json(ret);
 };
 
-export const checkCharging = (req: Request, res: Response) => {
+export const internalProfile = (req: Request, res: Response) => {
   const ret = {
     resultCode: "20000",
     resultStatus: "Success",
     developerMessage: "Success",
-    resultData: { 
-      chargeNumber: '',
-      status: 'Active'
-    }
+    resultData: { profileList: [ { serviceInfo: { suspended: false } } ] }
   };
   return res.json(ret);
 };
