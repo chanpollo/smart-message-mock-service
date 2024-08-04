@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { TBody, TResponse } from './nmgw.interface';
 import { logger } from './tps.logger';
+import { ParsedQs } from 'qs';
 
 let startTime = Date.now();
 let lastLogTime = Date.now();
@@ -118,6 +119,142 @@ export const newPartnerProfile = (req: Request, res: Response) => {
     developerMessage: "Success"
   };
   return res.status(201).json(response);
+};
+
+export const getPartnerProfile = (req: Request, res: Response) => {
+  const filter = req.query.filter || "";
+  if (!filter) {
+    const response = {
+      resultCode: "40402",
+      resultStatus: "Data not found",
+      developerMessage: "Data not found"
+    };
+    return res.status(500).send(response);
+  }
+  const extractChargeNumber = (filter: string | string[] | ParsedQs | ParsedQs[]): string | null => {
+    if (typeof filter === 'string') {
+      const chargeNumberMatch = filter.match(/service\.charge\.chargeNumber=(\d+)/);
+      return chargeNumberMatch ? chargeNumberMatch[1] : null;
+    }
+    return null;
+  };
+
+  const chargeNumber = extractChargeNumber(filter);
+  if (!chargeNumber) {
+    const response = {
+      resultCode: "40401",
+      resultStatus: "Data not found",
+      developerMessage: "Data not found"
+    };
+    return res.status(500).send(response);
+  }
+
+  const path = req.path; 
+  const pathSegments = path.split('/').filter(segment => segment);
+  let system = "";
+  let activeFlag = true;
+  if (pathSegments.length >= 3) {
+    const part1 = pathSegments[2]; // 'bizlive'
+    const part2 = pathSegments[4]; // 'stg_profile'
+    system = part1;
+  }
+  // condition bizlive 1-4 // stg_profile 4-8 // 9 = not fond
+  // condition 2/5 = in active
+  
+  const response = {
+    resultCode: "20000",
+    resultStatus: "Success",
+    developerMessage: "Success",
+    resultData : {}
+  };
+  const lastNumber = Number(chargeNumber.charAt(chargeNumber.length - 1));
+  if (lastNumber == 2 || lastNumber == 5){
+    activeFlag = false
+  }
+  if (lastNumber == 9) {
+    const response = {
+      resultCode: "40401",
+      resultStatus: "Data not found",
+      developerMessage: "Data not found"
+    };
+    return res.status(500).send(response);
+  } else {
+    if (system == "bizlive" && lastNumber <= 4) {
+      response.resultData = {
+        "profileList": [
+          { 
+            "profileId": "bizlive_AIS_TEST01",
+              "serviceInfo": { 
+                "serviceModel" : "111", 
+                "cpName" : "AIS", 
+                "suspended" : false,
+                "deleteDate": "",
+                "active" : activeFlag,
+                "charge":{
+                  "ntypeNumber" :"7",
+                  "ntypeName" : "3PO",
+                }
+              }
+          },
+          { 
+            "profileId": "bizlive_AIS_TEST02",
+              "serviceInfo": { 
+                "serviceModel" : "111", 
+                "cpName" : "AIS", 
+                "suspended" : false,
+                "deleteDate": "",
+                "active" : activeFlag,
+                "charge":{
+                  "ntypeNumber" :"7",
+                  "ntypeName" : "3PO",
+                }
+              }
+          }
+        ] 
+      }
+    } else if (system == "bulksms" && lastNumber >= 4) {
+      response.resultData = {
+        "profileList": [
+          { 
+            "profileId": "bulksms_AIS_TEST03",
+              "serviceInfo": { 
+                "serviceModel" : "113", 
+                "cpName" : "AIS", 
+                "suspended" : false,
+                "deleteDate": "",
+                "active" : activeFlag,
+                "charge":{
+                  "ntypeNumber" :"7",
+                  "ntypeName" : "3PO",
+                }
+              }
+          },
+          { 
+            "profileId": "bulksms_AIS_TEST04",
+              "serviceInfo": { 
+                "serviceModel" : "114", 
+                "cpName" : "AIS", 
+                "suspended" : false,
+                "deleteDate": "",
+                "active" : activeFlag,
+                "charge":{
+                  "ntypeNumber" :"7",
+                  "ntypeName" : "3PO",
+                }
+              }
+          }
+        ] 
+      }
+    } else {
+      const response = {
+        resultCode: "40401",
+        resultStatus: "Data not found",
+        developerMessage: "Data not found"
+      };
+      return res.status(500).send(response);
+    }
+  }
+  return res.status(200).json(response);
 };
 
 function generateSmIds(n: number): string[] {
