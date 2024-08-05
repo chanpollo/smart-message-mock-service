@@ -188,7 +188,7 @@ export const getPartnerProfile = (req: Request, res: Response) => {
                 "serviceModel" : "111", 
                 "cpName" : "AIS", 
                 "suspended" : false,
-                "deleteDate": "",
+                "deleteDate": "2024-05-09T19:00:00.000+0700",
                 "active" : activeFlag,
                 "charge":{
                   "ntypeNumber" :"7",
