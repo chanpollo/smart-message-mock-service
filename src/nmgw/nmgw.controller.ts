@@ -133,7 +133,7 @@ export const getPartnerProfile = (req: Request, res: Response) => {
   }
   const extractChargeNumber = (filter: string | string[] | ParsedQs | ParsedQs[]): string | null => {
     if (typeof filter === 'string') {
-      const chargeNumberMatch = filter.match(/service\.charge\.chargeNumber=(\d+)/);
+      const chargeNumberMatch = filter.match(/serviceInfo\.charge\.chargeNumber=(\d+)/);
       return chargeNumberMatch ? chargeNumberMatch[1] : null;
     }
     return null;
